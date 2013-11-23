@@ -7,9 +7,6 @@ const url = require('url')
 module.exports = Proxy
 
 function Proxy(opts) {
-  this.socket = opts.socket
-  if (!this.socket)
-    this.port = opts.port || 3141
   this.servers = opts.servers
   this.agent = opts.agent
     ? opts.agent
@@ -56,19 +53,7 @@ Proxy.prototype.createServer = function createServer(callback) {
     callback.call(this, clientReq, clientRes, continue_.bind(this))
   }.bind(this))
 
-  return this.openGateway(gateway)
-}
-
-Proxy.prototype.openGateway = function openGateway(gateway) {
-  const port = this.port
-  const socket = this.socket
-
-  if (socket) {
-    try { fs.unlinkSync(socket) }
-    catch (e) { if (e.code != 'ENOENT') throw (e) }
-    finally { return gateway.listen(socket) }
-  }
-  return gateway.listen(port)
+  return gateway
 }
 
 Proxy.connectionNoop = function connectionNoop(_, _, done) {

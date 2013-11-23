@@ -2,10 +2,10 @@ const path = require('path')
 const http = require('http')
 const concat = require('concat-stream')
 
-module.exports = function (proxy, opts, callback) {
+module.exports = function (opts, callback) {
   opts = opts || {}
   const request = http.request({
-    socketPath: proxy.socket,
+    socketPath: opts.socketPath,
     path: opts.path,
     method: opts.method,
     headers: {

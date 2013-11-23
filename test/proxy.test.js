@@ -7,12 +7,12 @@ const testRequest = require('./request')
 test('proxy server: simple routing', function (t) {
   const testSocket1 = localSocket('test.socket')
   const testSocket2 = localSocket('test2.socket')
+  const proxySocket = localSocket('proxy-test.socket')
 
   const testServer1 = testServer(testSocket1)
   const testServer2 = testServer(testSocket2)
 
   const proxy = new Proxy({
-    socket: localSocket('proxy-test.socket'),
     servers: [
       ['test.localhost', testSocket1],
       ['test2.localhost', testSocket2]
@@ -23,12 +23,15 @@ test('proxy server: simple routing', function (t) {
     req.headers['x-proxy'] = 'ti-83'
     return next()
   })
+
+  gateway.listen(localSocket('proxy-test.socket'))
   gateway.unref()
 
   const path = '/stuff?opt=yah'
 
   t.plan(8)
-  testRequest(proxy, {
+  testRequest({
+    socketPath: proxySocket,
     path: path,
     host: 'test.localhost',
     method: 'GET',
@@ -39,7 +42,8 @@ test('proxy server: simple routing', function (t) {
     t.same(proxyRes.path, path, 'correct path')
   })
 
-  testRequest(proxy, {
+  testRequest({
+    socketPath: proxySocket,
     path: path,
     host: 'test2.localhost',
     method: 'GET',
@@ -52,6 +56,11 @@ test('proxy server: simple routing', function (t) {
 })
 
 function exec(method) { return function (obj) { obj[method]() } }
+
 function localSocket(file) {
-  return path.join(__dirname, 'sockets', file)
+  const fs = require('fs')
+  const fullPath = path.join(__dirname, 'sockets', file)
+  try { fs.unlinkSync(fullPath) }
+  catch (e) { if (e.code != 'ENOENT') throw e}
+  finally { return fullPath }
 }
