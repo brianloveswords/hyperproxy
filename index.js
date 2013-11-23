@@ -3,16 +3,16 @@ const find = require('lodash.find')
 const http = require('http')
 const urlglob = require('urlglob')
 
-module.exports = Proxy
+module.exports = Hyperproxy
 
-function Proxy(opts) {
+function Hyperproxy(opts) {
   this.servers = opts.servers
   this.agent = opts.agent
     ? opts.agent
-    : Proxy.defaultAgent()
+    : Hyperproxy.defaultAgent()
 }
 
-Proxy.prototype.request = function request(opts, callback) {
+Hyperproxy.prototype.request = function request(opts, callback) {
   const servers = this.servers
   const path = opts.path
 
@@ -31,7 +31,7 @@ Proxy.prototype.request = function request(opts, callback) {
     })[1]
   }
 
-  const proxyOpts = Proxy.createRequestOpts(endpoint, {
+  const proxyOpts = Hyperproxy.createRequestOpts(endpoint, {
     path: opts.path,
     headers: opts.headers,
     method: opts.method,
@@ -40,8 +40,8 @@ Proxy.prototype.request = function request(opts, callback) {
   return http.request(proxyOpts, callback)
 }
 
-Proxy.prototype.createServer = function createServer(callback) {
-  callback = callback || Proxy.connectionNoop
+Hyperproxy.prototype.createServer = function createServer(callback) {
+  callback = callback || Hyperproxy.connectionNoop
   const gateway = http.createServer()
 
   gateway.on('request', function (clientReq, clientRes) {
@@ -63,17 +63,17 @@ Proxy.prototype.createServer = function createServer(callback) {
   return gateway
 }
 
-Proxy.connectionNoop = function connectionNoop(_, _, done) {
+Hyperproxy.connectionNoop = function connectionNoop(_, _, done) {
   return done()
 }
 
-Proxy.createRequestOpts = function createRequestOpts(endpoint, opts) {
-  if (Proxy.isSocket(endpoint)) {
+Hyperproxy.createRequestOpts = function createRequestOpts(endpoint, opts) {
+  if (Hyperproxy.isSocket(endpoint)) {
     opts.socketPath = endpoint
     return opts
   }
 
-  if (Proxy.isPort(endpoint)) {
+  if (Hyperproxy.isPort(endpoint)) {
     opts.port = endpoint
     return opts
   }
@@ -88,17 +88,17 @@ Proxy.createRequestOpts = function createRequestOpts(endpoint, opts) {
   return opts
 }
 
-Proxy.isSocket = function isSocket(input) {
+Hyperproxy.isSocket = function isSocket(input) {
   return (input.indexOf(':') == -1 ||
           typeof input == 'number' ||
           !isNaN(Number(input)))
 
 }
-Proxy.isPort = function isPort(string) {
+Hyperproxy.isPort = function isPort(string) {
   return string.indexOf(':') == 0
 }
 
-Proxy.defaultAgent = function defaultAgent() {
+Hyperproxy.defaultAgent = function defaultAgent() {
   const agent = new http.Agent()
   agent.maxSockets = Infinity
   return agent;
