@@ -1,6 +1,6 @@
 # hyperproxy
 
-Transparently proxy to local ports or sockets with advanced routing.
+Proxy with advanced routing capabilities
 
 ## Install
 
