@@ -65,12 +65,8 @@ Proxy.prototype.openGateway = function openGateway(gateway) {
 
   if (socket) {
     try { fs.unlinkSync(socket) }
-    catch (e) {
-      if (e.code != 'ENOENT') throw (e)
-    }
-    finally {
-      return gateway.listen(socket)
-    }
+    catch (e) { if (e.code != 'ENOENT') throw (e) }
+    finally { return gateway.listen(socket) }
   }
   return gateway.listen(port)
 }
