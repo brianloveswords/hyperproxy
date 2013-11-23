@@ -18,8 +18,7 @@ const proxy = new Proxy([
   servers: {
     // exact matches, no big deal
     [ 'tau.example.org', ':1618' ],
-    [ 'pi.example.org', ':3141'
-    ],
+    [ 'pi.example.org', ':3141'  ],
     [ 'euler.example.org', ':2718' ]
 
     // match any subdomain, e.g.
@@ -33,10 +32,8 @@ const proxy = new Proxy([
       // matches all sub paths, e.g. /static/a/b/
       ['/static/*', '/tmp/static.socket' ],
       ['/js/*', '/tmp/javascript.socket' ],
-
       // matches '/v2/x/y/z.json', `/v22.73/stuff.json'
       ['/api/*.json', '/tmp/json-api.socket' ],
-
       // matches '/v1/x/y/z.xml', `/vπ/stuff.xml'
       ['/api/*.xml', '/tmp/xml-api.socket' ],
     ]],
