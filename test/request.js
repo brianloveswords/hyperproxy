@@ -6,6 +6,7 @@ module.exports = function (opts, callback) {
   opts = opts || {}
   const request = http.request({
     socketPath: opts.socketPath,
+    port: opts.port,
     path: opts.path,
     method: opts.method,
     headers: {

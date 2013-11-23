@@ -3,11 +3,12 @@ const http = require('http')
 
 module.exports = makeServer
 
-function makeServer(socket) {
-  socket = cleanupSocket(socket)
+function makeServer(socketOrPort) {
+  socketOrPort = cleanupSocket(socketOrPort)
 
-  console.log('starting test server on', socket)
+  console.log('starting test server on', socketOrPort)
 
+  var listeningPort
   const server = http.createServer(function (req, res) {
     const headers = req.headers
     const host = headers.host
@@ -15,7 +16,8 @@ function makeServer(socket) {
     const method = req.method
 
      res.write(JSON.stringify({
-      socket: socket,
+      socketPath: socketOrPort,
+      port: listeningPort,
       headers: headers,
       host: host,
       path: path,
@@ -24,7 +26,12 @@ function makeServer(socket) {
 
     res.end()
 
-  }).listen(socket)
+  }).listen(socketOrPort)
+
+  server.on('listening', function () {
+    listeningPort = this.address().port
+  })
+
 
   server.unref()
 
