@@ -1,4 +1,3 @@
-const path = require('path')
 const fs = require('fs')
 const http = require('http')
 
@@ -26,7 +25,9 @@ function makeServer(socket) {
     res.end()
 
   }).listen(socket)
+
   server.unref()
+
   return server
 }
 
@@ -34,9 +35,7 @@ function cleanupSocket(socket) {
   if (socket.indexOf(':') == 0)
     return socket.slice(1)
 
-  const sockPath = path.join(__dirname, 'sockets', socket)
-
-  try { fs.unlinkSync(sockPath) }
-  catch (e) { console.dir(e) }
-  finally { return sockPath }
+  try { fs.unlinkSync(socket) }
+  catch (e) { if (e.code != 'ENOENT') throw e}
+  finally { return socket }
 }

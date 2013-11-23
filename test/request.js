@@ -14,7 +14,6 @@ module.exports = function (proxy, opts, callback) {
       "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       "accept-language": "en-US,en;q=0.5",
       "accept-encoding": "gzip, deflate",
-      "connection": "keep-alive"
     },
   }, function (res) {
     res.pipe(concat(function (body) {
