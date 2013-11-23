@@ -1,8 +1,8 @@
 const Proxy = require('..')
-const path = require('path')
 const test = require('tap').test
 const testServer = require('./server')
 const testRequest = require('./request')
+const localSocket = require('./localSocket')
 
 test('proxy server: simple routing', function (t) {
   const testSocket1 = localSocket('test.socket')
@@ -54,13 +54,3 @@ test('proxy server: simple routing', function (t) {
     t.same(proxyRes.path, path, 'correct path')
   })
 })
-
-function exec(method) { return function (obj) { obj[method]() } }
-
-function localSocket(file) {
-  const fs = require('fs')
-  const fullPath = path.join(__dirname, 'sockets', file)
-  try { fs.unlinkSync(fullPath) }
-  catch (e) { if (e.code != 'ENOENT') throw e}
-  finally { return fullPath }
-}
