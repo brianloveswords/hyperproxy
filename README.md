@@ -30,13 +30,6 @@ const proxy = new Proxy([
     // - '⚡.example.org'
     [ '*.example.org', '/tmp/any-subdomain.socket' ],
 
-
-    // match any subdomain, e.g.
-    // - 'images.example.org'
-    // - 'stuff.user.example.org'
-    // - '🍕.example.org'
-    [ '*.example.org', '/tmp/any-subdomain.socket' ],
-
     // url matching!
     [ 'example.org', [
       // matches all sub paths, e.g. /static/a/b/
