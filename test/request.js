@@ -22,7 +22,6 @@ module.exports = function (opts, callback) {
       return callback(response)
     }))
   })
-
-  request.end()
+  request.end(opts.data || Buffer(''))
   return request
 }

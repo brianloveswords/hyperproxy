@@ -29,7 +29,7 @@ test('proxy server: simple routing', function (t) {
 
   const path = '/stuff?opt=yah'
 
-  t.plan(8)
+  t.plan(9)
   testRequest({
     socketPath: proxySocket,
     path: path,
@@ -42,12 +42,15 @@ test('proxy server: simple routing', function (t) {
     t.same(proxyRes.path, path, 'correct path')
   })
 
+  const postData = Buffer('id=proxyproxyproxy')
   testRequest({
     socketPath: proxySocket,
     path: path,
     host: 'localhost.whatever.lol',
-    method: 'GET',
+    method: 'POST',
+    data: postData,
   }, function (proxyRes) {
+    t.same(proxyRes.data, postData.toString(), 'correct post data')
     t.same(proxyRes.headers['x-proxy'], 'ti-83', 'correct header')
     t.same(proxyRes.socketPath, testSocket2, 'correct socket')
     t.same(proxyRes.host, 'localhost.whatever.lol', 'correct host')

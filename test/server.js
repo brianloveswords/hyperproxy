@@ -1,5 +1,6 @@
 const fs = require('fs')
 const http = require('http')
+const concat = require('concat-stream')
 
 module.exports = makeServer
 
@@ -15,16 +16,19 @@ function makeServer(socketOrPort) {
     const path = req.url
     const method = req.method
 
-     res.write(JSON.stringify({
-      socketPath: socketOrPort,
-      port: listeningPort,
-      headers: headers,
-      host: host,
-      path: path,
-      method: method,
-    }, null, '  '))
+    req.pipe(concat(function (data) {
+      res.write(JSON.stringify({
+        socketPath: socketOrPort,
+        port: listeningPort,
+        headers: headers,
+        host: host,
+        path: path,
+        method: method,
+        data: data.toString(),
+      }, null, '  '))
 
-    res.end()
+      res.end()
+    }))
 
   }).listen(socketOrPort)
 
