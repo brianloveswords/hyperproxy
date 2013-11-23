@@ -1,6 +1,6 @@
 {
   "name": "hyperproxy",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Transparently proxy to local ports or sockets with advanced routing.",
   "main": "index.js",
   "directories": {
