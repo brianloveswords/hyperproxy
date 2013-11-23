@@ -1,5 +1,5 @@
 {
-  "name": "host-routes",
+  "name": "hyperproxy",
   "version": "0.0.0",
   "description": "",
   "main": "index.js",
@@ -15,9 +15,8 @@
     "concat-stream": "~1.2.0"
   },
   "scripts": {
-    "test": "tap test/*.test.js",
-    "start": "node server.js"
+    "test": "tap test/*.test.js"
   },
-  "author": "",
-  "license": "BSD-2-Clause"
+  "author": "Brian J Brennan",
+  "license": "MIT"
 }
