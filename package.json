@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "lodash.find": "~2.3.0",
-    "minimatch": "~0.2.12"
+    "lru-cache": "~2.5.0"
   },
   "devDependencies": {
     "tap": "~0.4.6",
