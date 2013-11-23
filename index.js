@@ -1,8 +1,7 @@
 const fs = require('fs')
 const find = require('lodash.find')
-const minimatch = require('minimatch')
 const http = require('http')
-const url = require('url')
+const urlglob = require('./urlglob')
 
 module.exports = Proxy
 
@@ -15,13 +14,24 @@ function Proxy(opts) {
 
 Proxy.prototype.request = function request(opts, callback) {
   const servers = this.servers
+  const path = opts.path
 
   const server = find(servers, function (server) {
     const hostPattern = server[0]
-    return minimatch(opts.host, hostPattern)
+    return urlglob(hostPattern, opts.host)
   })
 
-  const proxyOpts = Proxy.createRequestOpts(server[1], {
+  var socketOrPort = server[1]
+
+  if (Array.isArray(socketOrPort)) {
+    const urlPatterns = socketOrPort
+    socketOrPort = find(urlPatterns, function (urlPairs) {
+      const urlPattern = urlPairs[0]
+      return urlglob(urlPattern, path)
+    })[1]
+  }
+
+  const proxyOpts = Proxy.createRequestOpts(socketOrPort, {
     path: opts.path,
     headers: opts.headers,
     method: opts.method,
