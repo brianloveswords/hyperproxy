@@ -56,7 +56,7 @@ const gateway = proxy
 
 ## Current Limitations
 
-* `http` only, no support for SSL yet
+* `http` only, no support for `https` or `ws` yet
 
 ## License
 
