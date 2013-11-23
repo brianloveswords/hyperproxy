@@ -1,6 +1,6 @@
 # hyperproxy
 
-Proxy with advanced routing capabilities
+Reverse proxy with advanced routing capabilities
 
 ## Install
 
