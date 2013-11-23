@@ -12,9 +12,9 @@ $ npm install hyperproxy
 
 ### Egregious example
 ```js
-const hyperproxy = require('hyperproxy')
+const Hyperproxy = require('hyperproxy')
 
-const proxy = new Proxy([
+const proxy = new Hyperproxy([
   servers: {
     // exact matches, routes to ports
     [ 'tau.example.org', ':1618' ],
@@ -44,7 +44,7 @@ const proxy = new Proxy([
   ]
 })
 
-const gateway = proxy
+const server = proxy
   .createServer(function(req, res, next){
     // callback is optional, if nothing is passed proxying will
     // happen as normal. when a callback is passed, calling `next`
@@ -55,8 +55,10 @@ const gateway = proxy
 ```
 
 ## Current Limitations
+These may be implemented as plugins later on.
 
-* `http` only, no support for `https` or `ws` yet
+* `http` only, no support for `https` or `ws`.
+* No load balancing, caching or any "advanced" features.
 
 ## License
 
