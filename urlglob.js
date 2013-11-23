@@ -44,3 +44,4 @@ urlglob.inCache = function inCache(pattern) {
 }
 
 urlglob.cache = cache
+urlglob.convert = convert

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const find = require('lodash.find')
 const http = require('http')
-const urlglob = require('./urlglob')
+const urlglob = require('urlglob')
 
 module.exports = Proxy
 
@@ -21,17 +21,17 @@ Proxy.prototype.request = function request(opts, callback) {
     return urlglob(hostPattern, opts.host)
   })
 
-  var socketOrPort = server[1]
+  var endpoint = server[1]
 
-  if (Array.isArray(socketOrPort)) {
-    const urlPatterns = socketOrPort
-    socketOrPort = find(urlPatterns, function (urlPairs) {
+  if (Array.isArray(endpoint)) {
+    const urlPatterns = endpoint
+    endpoint = find(urlPatterns, function (urlPairs) {
       const urlPattern = urlPairs[0]
       return urlglob(urlPattern, path)
     })[1]
   }
 
-  const proxyOpts = Proxy.createRequestOpts(socketOrPort, {
+  const proxyOpts = Proxy.createRequestOpts(endpoint, {
     path: opts.path,
     headers: opts.headers,
     method: opts.method,
@@ -46,17 +46,14 @@ Proxy.prototype.createServer = function createServer(callback) {
 
   gateway.on('request', function (clientReq, clientRes) {
     function continue_() {
-      const headers = clientReq.headers
-      const host = headers.host
-      const path = clientReq.url
-      const method = clientReq.method
+      const reqOpts = {
+        headers: clientReq.headers,
+        host: clientReq.headers.host,
+        path: clientReq.url,
+        method: clientReq.method,
+      }
 
-      clientReq.pipe(this.request({
-        host: host,
-        path: path,
-        headers: headers,
-        method: method,
-      }, function (proxyRes) {
+      clientReq.pipe(this.request(reqOpts, function (proxyRes) {
         proxyRes.pipe(clientRes)
       }))
     }
@@ -70,15 +67,35 @@ Proxy.connectionNoop = function connectionNoop(_, _, done) {
   return done()
 }
 
-Proxy.createRequestOpts = function createRequestOpts(socketOrPort, opts) {
-  if (Proxy.isSocket(socketOrPort))
-    opts.socketPath = socketOrPort
-  else opts.port = socketOrPort
+Proxy.createRequestOpts = function createRequestOpts(endpoint, opts) {
+  if (Proxy.isSocket(endpoint)) {
+    opts.socketPath = endpoint
+    return opts
+  }
+
+  if (Proxy.isPort(endpoint)) {
+    opts.port = endpoint
+    return opts
+  }
+
+  const parts = endpoint.split(':')
+  const hostname = parts[0]
+  const port = parts[1]
+
+  opts.headers.host = hostname
+  opts.hostname = hostname
+  opts.port = port
   return opts
 }
 
-Proxy.isSocket = function isSocket(string) {
-  return string.indexOf(':') == -1
+Proxy.isSocket = function isSocket(input) {
+  return (input.indexOf(':') == -1 ||
+          typeof input == 'number' ||
+          !isNaN(Number(input)))
+
+}
+Proxy.isPort = function isPort(string) {
+  return string.indexOf(':') == 0
 }
 
 Proxy.defaultAgent = function defaultAgent() {

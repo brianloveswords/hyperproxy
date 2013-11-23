@@ -4,7 +4,7 @@ const testServer = require('./server')
 const testRequest = require('./request')
 const localSocket = require('./localSocket')
 
-test('proxy server: simple routing', function (t) {
+test('proxy server: simple routing with ports', function (t) {
   const proxySocket = localSocket('proxy-test.socket')
   const endpoint = testServer(':0')
 
@@ -26,7 +26,7 @@ test('proxy server: simple routing', function (t) {
     testRequest({
       port: testPort,
       path: '/',
-      host: 'test.localhost',
+      hostname: 'test.localhost',
       method: 'GET',
     }, function (proxyRes) {
       console.dir(proxyRes)

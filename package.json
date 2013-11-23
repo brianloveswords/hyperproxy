@@ -1,14 +1,15 @@
 {
   "name": "hyperproxy",
   "version": "0.0.0",
-  "description": "",
+  "description": "Transparently proxy to local ports or sockets with advanced routing.",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
   "dependencies": {
     "lodash.find": "~2.3.0",
-    "lru-cache": "~2.5.0"
+    "nock": "~0.23.0",
+    "urlglob": "~0.1.0"
   },
   "devDependencies": {
     "tap": "~0.4.6",
@@ -18,5 +19,15 @@
     "test": "tap test/*.test.js"
   },
   "author": "Brian J Brennan",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/brianloveswords/hyperproxy.git"
+  },
+  "keywords": [
+    "proxy"
+  ],
+  "bugs": {
+    "url": "https://github.com/brianloveswords/hyperproxy/issues"
+  }
 }

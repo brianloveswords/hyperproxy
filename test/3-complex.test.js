@@ -4,7 +4,7 @@ const testServer = require('./server')
 const testRequest = require('./request')
 const localSocket = require('./localSocket')
 
-test('proxy server: simple routing', function (t) {
+test('proxy server: complex routing', function (t) {
   const servers = {
     json: makeServer('json'),
     xml: makeServer('xml'),
@@ -35,7 +35,7 @@ test('proxy server: simple routing', function (t) {
   testRequest({
     socketPath: proxySocket,
     path: '/api/x/y/z.json',
-    host: 'test.localhost',
+    hostname: 'test.localhost',
     method: 'GET',
   }, function (proxyRes) {
     t.same(proxyRes.socketPath, servers.json.socket, 'should json')
@@ -44,7 +44,7 @@ test('proxy server: simple routing', function (t) {
   testRequest({
     socketPath: proxySocket,
     path: '/api/v2/lol/rattleskates.xml',
-    host: 'test.localhost',
+    hostname: 'test.localhost',
     method: 'GET',
   }, function (proxyRes) {
     t.same(proxyRes.socketPath, servers.xml.socket, 'should xml')
@@ -53,7 +53,7 @@ test('proxy server: simple routing', function (t) {
   testRequest({
     socketPath: proxySocket,
     path: '/.link',
-    host: 'test.localhost',
+    hostname: 'test.localhost',
     method: 'GET',
   }, function (proxyRes) {
     t.same(proxyRes.socketPath, servers.dot.socket, 'should dot')
@@ -62,7 +62,7 @@ test('proxy server: simple routing', function (t) {
   testRequest({
     socketPath: proxySocket,
     path: '/literally/anything/else',
-    host: 'test.localhost',
+    hostname: 'test.localhost',
     method: 'GET',
   }, function (proxyRes) {
     t.same(proxyRes.socketPath, servers.default.socket, 'should default')

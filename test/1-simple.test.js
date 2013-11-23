@@ -33,7 +33,7 @@ test('proxy server: simple routing', function (t) {
   testRequest({
     socketPath: proxySocket,
     path: path,
-    host: 'test.localhost',
+    hostname: 'test.localhost',
     method: 'GET',
   }, function (proxyRes) {
     t.same(proxyRes.headers['x-proxy'], 'ti-83', 'correct header')
@@ -46,7 +46,7 @@ test('proxy server: simple routing', function (t) {
   testRequest({
     socketPath: proxySocket,
     path: path,
-    host: 'localhost.whatever.lol',
+    hostname: 'localhost.whatever.lol',
     method: 'POST',
     data: postData,
   }, function (proxyRes) {

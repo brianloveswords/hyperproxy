@@ -16,10 +16,20 @@ const hyperproxy = require('hyperproxy')
 
 const proxy = new Proxy([
   servers: {
-    // exact matches, no big deal
+    // exact matches, routes to ports
     [ 'tau.example.org', ':1618' ],
     [ 'pi.example.org', ':3141'  ],
-    [ 'euler.example.org', ':2718' ]
+    [ 'euler.example.org', ':2718' ],
+
+    // route to an external domain
+    [ 'google.example.org', 'google:80' ],
+
+    // matches
+    // - 'images.example.org'
+    // - 'stuff.user.example.org'
+    // - '⚡.example.org'
+    [ '*.example.org', '/tmp/any-subdomain.socket' ],
+
 
     // match any subdomain, e.g.
     // - 'images.example.org'
@@ -50,6 +60,10 @@ const gateway = proxy
     next() // continue to proxy routing
   }).listen(80)
 ```
+
+## Current Limitations
+
+* `http` only, no support for SSL yet
 
 ## License
 
