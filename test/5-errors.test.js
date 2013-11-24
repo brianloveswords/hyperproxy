@@ -11,26 +11,36 @@ test('no route match', function (t) {
 
   server.unref()
 
-  server.on('proxyMiss', function (req, res) {
-    res.writeHead(502)
-    res.end('terrible gateway')
-  })
-
-
-  testRequest({
+  const opts = {
     socketPath: proxySocket,
     path: '/api/x/y/z.json',
     hostname: 'test.localhost',
     method: 'GET',
     json: false,
-  }, function (proxyRes) {
-    t.same(proxyRes.toString(), 'terrible gateway')
-    t.end()
+  }
+
+  server.once('proxyMiss', function (req, res, handleError) {
+    console.log('yep, missed')
+    handleError()
+  });
+
+  testRequest(opts, function (proxyRes) {
+    t.same(proxyRes.toString(), 'Bad Gateway')
+
+    const msg = 'proxy miss'
+    server.on('proxyMiss', function (req, res) {
+      res.writeHead(502)
+      res.end(msg)
+    })
+    testRequest(opts, function (proxyRes) {
+      t.same(proxyRes.toString(), msg)
+      t.end()
+    })
   })
 
 })
 
-test('no route match', function (t) {
+test('dead socket', function (t) {
   const proxySocket = localSocket('proxy-test.socket')
   const server = new Proxy({ servers: [
     ['*', localSocket('intentinally-dead.socket')]
@@ -38,15 +48,58 @@ test('no route match', function (t) {
 
   server.unref()
 
-  testRequest({
+  const opts = {
     socketPath: proxySocket,
     path: '/api/x/y/z.json',
     hostname: 'test.localhost',
     method: 'GET',
     json: false,
-  }, function (proxyRes) {
+  }
+
+  testRequest(opts, function (proxyRes) {
     t.same(proxyRes.toString(), 'Bad Gateway')
-    t.end()
+
+    const msg = 'missing socket'
+    server.on('missingSocketFile', function (req, res) {
+      res.writeHead(502)
+      res.end(msg)
+    })
+    testRequest(opts, function (proxyRes) {
+      t.same(proxyRes.toString(), msg)
+      t.end()
+    })
+  })
+
+})
+
+test('missing remote host', function (t) {
+  const proxySocket = localSocket('proxy-test.socket')
+  const server = new Proxy({ servers: [
+    ['*', 'some.site-that.does-not.exist:9990']
+  ]}).createServer().listen(proxySocket)
+
+  server.unref()
+
+  const opts = {
+    socketPath: proxySocket,
+    path: '/api/x/y/z.json',
+    hostname: 'test.localhost',
+    method: 'GET',
+    json: false,
+  }
+
+  testRequest(opts, function (proxyRes) {
+    t.same(proxyRes.toString(), 'Bad Gateway')
+
+    const msg = 'missing host'
+    server.on('hostNotFound', function (req, res) {
+      res.writeHead(502)
+      res.end(msg)
+    })
+    testRequest(opts, function (proxyRes) {
+      t.same(proxyRes.toString(), msg)
+      t.end()
+    })
   })
 
 })

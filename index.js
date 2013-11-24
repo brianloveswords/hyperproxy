@@ -5,57 +5,25 @@ const urlglob = require('urlglob')
 
 module.exports = Hyperproxy
 
-function Hyperproxy(opts) {
+function Hyperproxy(opts, callback) {
   this.servers = opts.servers
   this.agent = opts.agent
     ? opts.agent
     : Hyperproxy.defaultAgent()
+
+  if (callback)
+    return this.createServer(callback)
 }
 
 Hyperproxy.prototype = {
-  request: function request(opts, callback) {
-    return http.request(opts, callback)
-  },
-
-  createRequestOpts: function createRequestOpts(opts) {
-    const servers = this.servers
-    const path = opts.path
-
-    const server = find(servers, function (server) {
-      const hostPattern = server[0]
-      return urlglob(hostPattern, opts.host)
-    })
-
-    if (!server)
-      return false
-
-    var endpoint = server[1]
-
-    if (Array.isArray(endpoint)) {
-      const urlPatterns = endpoint
-      endpoint = find(urlPatterns, function (urlPairs) {
-        const urlPattern = urlPairs[0]
-        return urlglob(urlPattern, path)
-      })[1]
-    }
-
-    if (!endpoint)
-      return false
-
-    return Hyperproxy.finishRequestOpts(endpoint, {
-      path: opts.path,
-      headers: opts.headers,
-      method: opts.method,
-    })
-  },
-
   createServer: function createServer(callback) {
     callback = callback || Hyperproxy.connectionNoop
     const server = http.createServer()
 
     server.on('request', function (clientReq, clientRes) {
       function makeProxyRequest() {
-        const requestOpts = this.createRequestOpts({
+        const requestOpts = Hyperproxy.createRequestOpts({
+          servers: this.servers,
           headers: clientReq.headers,
           host: clientReq.headers.host,
           path: clientReq.url,
@@ -63,7 +31,10 @@ Hyperproxy.prototype = {
         })
 
         if (!requestOpts) {
-          const handler = Hyperproxy.errorHandler({code: 'proxyMiss'})
+          const handler = Hyperproxy.errorHandler({
+            code: 'proxyMiss'
+          })
+
           return handler({
             server: server,
             req: clientReq,
@@ -71,7 +42,7 @@ Hyperproxy.prototype = {
           })
         }
 
-        const proxyReq = this.request(requestOpts, handleResponse)
+        const proxyReq = http.request(requestOpts, handleResponse)
         function handleResponse(proxyRes) {proxyRes.pipe(clientRes)}
 
         clientReq.pipe(proxyReq)
@@ -99,27 +70,67 @@ Hyperproxy.prototype = {
   },
 }
 
+Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
+  const servers = opts.servers
+  const path = opts.path
+
+  const server = find(servers, function (server) {
+    const hostPattern = server[0]
+    return urlglob(hostPattern, opts.host)
+  })
+
+  if (!server)
+    return false
+
+  var endpoint = server[1]
+
+      if (Array.isArray(endpoint)) {
+        const urlPatterns = endpoint
+        endpoint = find(urlPatterns, function (urlPairs) {
+          const urlPattern = urlPairs[0]
+          return urlglob(urlPattern, path)
+        })[1]
+      }
+
+  if (!endpoint)
+    return false
+
+  return Hyperproxy.finishRequestOpts(endpoint, {
+    path: opts.path,
+    headers: opts.headers,
+    method: opts.method,
+  })
+}
+
+
+
 Hyperproxy.errorHandler = function errorHandler(error) {
   return ((Hyperproxy.errorHandlers[error.code]  ||
-          Hyperproxy.errorHandlers.default)
+          Hyperproxy.errorHandlers.unknown)
           .bind(Hyperproxy.errorHandlers))
 }
 
 Hyperproxy.errorHandlers = {
   ENOENT: function (opts) {
-    // opts: { server, error, req, res}
-    return this.default(opts)
+    return Hyperproxy.eventOrBadGateway('missingSocketFile', opts)
   },
-  'proxyMiss': function (opts) {
-    const event = 'proxyMiss'
-    const server = opts.server
-    if (!server.listeners(event))
-      return this.default(opts)
-    server.emit(event, opts.req, opts.res)
+  ENOTFOUND: function (opts) {
+    return Hyperproxy.eventOrBadGateway('hostNotFound', opts)
   },
-  'default': function (opts) {
-    return Hyperproxy.badGateway(opts.server, opts.res, opts.res)
-  }
+  proxyMiss: function (opts) {
+    return Hyperproxy.eventOrBadGateway('proxyMiss', opts)
+  },
+  unknown: function (opts) {
+    return Hyperproxy.eventOrBadGateway('unknownError', opts)
+  },
+}
+
+Hyperproxy.eventOrBadGateway = function (event, opts) {
+  const server = opts.server
+  const handleBadGateway = Hyperproxy.badGateway.bind(Hyperproxy, opts)
+  if (!server.listeners(event).length)
+    return handleBadGateway()
+  server.emit(event, opts.req, opts.res, handleBadGateway)
 }
 
 Hyperproxy.connectionNoop =
@@ -166,7 +177,8 @@ Hyperproxy.defaultAgent = function defaultAgent() {
   return agent;
 }
 
-Hyperproxy.badGateway = function badGateway(server, req, res) {
+Hyperproxy.badGateway = function badGateway(opts) {
+  const res = opts.res
   res.writeHead(502, 'Bad Gateway')
   res.write('Bad Gateway')
   return res.end()
@@ -178,6 +190,4 @@ Hyperproxy.error = function error(msg, obj) {
   const err = new Error(msg)
   err.code = obj.code
   err.original = obj.original
-
-  console.dir(err.stack)
 }
