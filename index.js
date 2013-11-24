@@ -21,26 +21,34 @@ Hyperproxy.prototype = {
     const server = http.createServer()
 
     server.on('request', function (clientReq, clientRes) {
+      function proxyMiss(server, req, res) {
+        const handler = Hyperproxy.errorHandler({
+          code: 'proxyMiss'
+        })
+
+        return handler({
+          server: server,
+          req: clientReq,
+          res: clientRes
+        })
+      }
+
       function makeProxyRequest() {
+        if (!clientReq.headers.host)
+          return proxyMiss(server, clientReq, clientRes)
+
+        const host = clientReq.headers.host.split(':')[0]
+
         const requestOpts = Hyperproxy.createRequestOpts({
           servers: this.servers,
           headers: clientReq.headers,
-          host: clientReq.headers.host,
+          host: host,
           path: clientReq.url,
           method: clientReq.method,
         })
 
-        if (!requestOpts) {
-          const handler = Hyperproxy.errorHandler({
-            code: 'proxyMiss'
-          })
-
-          return handler({
-            server: server,
-            req: clientReq,
-            res: clientRes
-          })
-        }
+        if (!requestOpts)
+          return proxyMiss(server, clientReq, clientRes)
 
         const proxyReq = http.request(requestOpts, handleResponse)
         function handleResponse(proxyRes) {proxyRes.pipe(clientRes)}
@@ -84,13 +92,13 @@ Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
 
   var endpoint = server[1]
 
-      if (Array.isArray(endpoint)) {
-        const urlPatterns = endpoint
-        endpoint = find(urlPatterns, function (urlPairs) {
-          const urlPattern = urlPairs[0]
-          return urlglob(urlPattern, path)
-        })[1]
-      }
+  if (Array.isArray(endpoint)) {
+    const urlPatterns = endpoint
+    endpoint = find(urlPatterns, function (urlPairs) {
+      const urlPattern = urlPairs[0]
+      return urlglob(urlPattern, path)
+    })[1]
+  }
 
   if (!endpoint)
     return false
@@ -101,8 +109,6 @@ Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
     method: opts.method,
   })
 }
-
-
 
 Hyperproxy.errorHandler = function errorHandler(error) {
   return ((Hyperproxy.errorHandlers[error.code]  ||
