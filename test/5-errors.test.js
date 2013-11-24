@@ -2,6 +2,7 @@ const Proxy = require('..')
 const test = require('tap').test
 const testRequest = require('./request')
 const localSocket = require('./localSocket')
+const net = require('net')
 
 test('no route match', function (t) {
   const proxySocket = localSocket('proxy-test.socket')
@@ -19,16 +20,16 @@ test('no route match', function (t) {
     json: false,
   }
 
-  server.once('proxyMiss', function (req, res, handleError) {
+  server.once('proxyMiss', function (err, req, res, defaultHandler) {
     console.log('yep, missed')
-    handleError()
+    defaultHandler()
   });
 
   testRequest(opts, function (proxyRes) {
     t.same(proxyRes.toString(), 'Bad Gateway')
 
     const msg = 'proxy miss'
-    server.on('proxyMiss', function (req, res) {
+    server.on('proxyMiss', function (_, req, res) {
       res.writeHead(502)
       res.end(msg)
     })
@@ -60,7 +61,7 @@ test('dead socket', function (t) {
     t.same(proxyRes.toString(), 'Bad Gateway')
 
     const msg = 'missing socket'
-    server.on('missingSocketFile', function (req, res) {
+    server.on('missingSocketFile', function (_, req, res) {
       res.writeHead(502)
       res.end(msg)
     })
@@ -92,7 +93,7 @@ test('missing remote host', function (t) {
     t.same(proxyRes.toString(), 'Bad Gateway')
 
     const msg = 'missing host'
-    server.on('hostNotFound', function (req, res) {
+    server.on('hostNotFound', function (_, req, res) {
       res.writeHead(502)
       res.end(msg)
     })

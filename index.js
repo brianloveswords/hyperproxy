@@ -112,25 +112,28 @@ Hyperproxy.errorHandler = function errorHandler(error) {
 
 Hyperproxy.errorHandlers = {
   ENOENT: function (opts) {
-    return Hyperproxy.eventOrBadGateway('missingSocketFile', opts)
+    return Hyperproxy.errorEvent('missingSocketFile', opts)
   },
   ENOTFOUND: function (opts) {
-    return Hyperproxy.eventOrBadGateway('hostNotFound', opts)
+    return Hyperproxy.errorEvent('hostNotFound', opts)
   },
   proxyMiss: function (opts) {
-    return Hyperproxy.eventOrBadGateway('proxyMiss', opts)
+    return Hyperproxy.errorEvent('proxyMiss', opts)
   },
   unknown: function (opts) {
-    return Hyperproxy.eventOrBadGateway('unknownError', opts)
+    return Hyperproxy.errorEvent('unknownError', opts)
   },
 }
 
-Hyperproxy.eventOrBadGateway = function (event, opts) {
+Hyperproxy.errorEvent = function (event, opts) {
   const server = opts.server
-  const handleBadGateway = Hyperproxy.badGateway.bind(Hyperproxy, opts)
+  const handleBadGateway =
+    Hyperproxy.badGateway.bind(Hyperproxy, opts)
+
   if (!server.listeners(event).length)
     return handleBadGateway()
-  server.emit(event, opts.req, opts.res, handleBadGateway)
+
+  server.emit(event, opts.error, opts.req, opts.res, handleBadGateway)
 }
 
 Hyperproxy.connectionNoop =
