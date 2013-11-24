@@ -139,6 +139,7 @@ Hyperproxy.errorEvent = function (event, opts) {
   if (!server.listeners(event).length)
     return handleBadGateway()
 
+  server.emit('proxyError', opts.error)
   server.emit(event, opts.error, opts.req, opts.res, handleBadGateway)
 }
 
