@@ -54,6 +54,13 @@ const server = proxy
   }).listen(80)
 ```
 
+## API
+
+### Events
+
+`proxyMiss`
+
+
 ## Current Limitations
 These may be implemented as plugins later on.
 

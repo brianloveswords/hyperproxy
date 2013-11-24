@@ -8,7 +8,35 @@ test('no route match', function (t) {
   const server = new Proxy({ servers: [] })
     .createServer()
     .listen(proxySocket)
-    .unref()
+
+  server.unref()
+
+  server.on('proxyMiss', function (req, res) {
+    res.writeHead(502)
+    res.end('terrible gateway')
+  })
+
+
+  testRequest({
+    socketPath: proxySocket,
+    path: '/api/x/y/z.json',
+    hostname: 'test.localhost',
+    method: 'GET',
+    json: false,
+  }, function (proxyRes) {
+    t.same(proxyRes.toString(), 'terrible gateway')
+    t.end()
+  })
+
+})
+
+test('no route match', function (t) {
+  const proxySocket = localSocket('proxy-test.socket')
+  const server = new Proxy({ servers: [
+    ['*', localSocket('intentinally-dead.socket')]
+  ]}).createServer().listen(proxySocket)
+
+  server.unref()
 
   testRequest({
     socketPath: proxySocket,

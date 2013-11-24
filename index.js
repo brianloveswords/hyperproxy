@@ -54,7 +54,7 @@ Hyperproxy.prototype = {
     const server = http.createServer()
 
     server.on('request', function (clientReq, clientRes) {
-      function continue_() {
+      function makeProxyRequest() {
         const requestOpts = this.createRequestOpts({
           headers: clientReq.headers,
           host: clientReq.headers.host,
@@ -63,19 +63,34 @@ Hyperproxy.prototype = {
         })
 
         if (!requestOpts) {
-          clientRes.writeHead(502, 'Bad Gateway')
-          clientRes.write('Bad Gateway')
-          return clientRes.end()
+          const handler = Hyperproxy.errorHandler({code: 'proxyMiss'})
+          return handler({
+            server: server,
+            req: clientReq,
+            res: clientRes
+          })
         }
 
+        const proxyReq = this.request(requestOpts, handleResponse)
         function handleResponse(proxyRes) {proxyRes.pipe(clientRes)}
-        clientReq.pipe(this.request(requestOpts, handleResponse))
+
+        clientReq.pipe(proxyReq)
+
+        proxyReq.on('error', function (err) {
+          const handler = Hyperproxy.errorHandler(err)
+          return handler({
+            error: err,
+            server: server,
+            req: clientReq,
+            res: clientRes
+          })
+        })
       }
 
       callback.apply(this, [
         clientReq,
         clientRes,
-        continue_.bind(this)
+        makeProxyRequest.bind(this)
       ])
 
     }.bind(this))
@@ -84,9 +99,33 @@ Hyperproxy.prototype = {
   },
 }
 
-Hyperproxy.connectionNoop = function connectionNoop(_, _, done) {
-  return done()
+Hyperproxy.errorHandler = function errorHandler(error) {
+  return ((Hyperproxy.errorHandlers[error.code]  ||
+          Hyperproxy.errorHandlers.default)
+          .bind(Hyperproxy.errorHandlers))
 }
+
+Hyperproxy.errorHandlers = {
+  ENOENT: function (opts) {
+    // opts: { server, error, req, res}
+    return this.default(opts)
+  },
+  'proxyMiss': function (opts) {
+    const event = 'proxyMiss'
+    const server = opts.server
+    if (!server.listeners(event))
+      return this.default(opts)
+    server.emit(event, opts.req, opts.res)
+  },
+  'default': function (opts) {
+    return Hyperproxy.badGateway(opts.server, opts.res, opts.res)
+  }
+}
+
+Hyperproxy.connectionNoop =
+  function connectionNoop(_, _, done) {
+    return done()
+  }
 
 Hyperproxy.finishRequestOpts =
   function finishRequestOpts(endpoint, opts) {
@@ -125,4 +164,20 @@ Hyperproxy.defaultAgent = function defaultAgent() {
   const agent = new http.Agent()
   agent.maxSockets = Infinity
   return agent;
+}
+
+Hyperproxy.badGateway = function badGateway(server, req, res) {
+  res.writeHead(502, 'Bad Gateway')
+  res.write('Bad Gateway')
+  return res.end()
+}
+
+Hyperproxy.error = function error(msg, obj) {
+  if (typeof msg == 'object')
+    msg = msg.message, obj = msg
+  const err = new Error(msg)
+  err.code = obj.code
+  err.original = obj.original
+
+  console.dir(err.stack)
 }
