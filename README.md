@@ -45,12 +45,12 @@ const proxy = new Hyperproxy([
 })
 
 const server = proxy
-  .createServer(function(req, res, next){
+  .createServer(function(req, res, proxyRoute){
     // callback is optional, if nothing is passed proxying will
-    // happen as normal. when a callback is passed, calling `next`
+    // happen as normal. when a callback is passed, calling `proxyRoute`
     // will continue on to the proxy routing process.
     res.headers['x-proxy'] = 'hyperproxy'
-    next() // continue to proxy routing
+    proxyRoute() // continue to proxy routing
   }).listen(80)
 ```
 
