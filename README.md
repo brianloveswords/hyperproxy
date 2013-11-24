@@ -40,7 +40,8 @@ const proxy = new Hyperproxy({
       // matches all sub paths, e.g. /static/a/b/
       ['/static/*', '/tmp/static.socket' ],
 
-      // matches one level deep, e.g '/js/x.js', but not '/js/sub/x.js'
+      // use '*?' to match one level deep, e.g '/js/x.js',
+      // but not '/js/sub/x.js'
       ['/js/*?', '/tmp/javascript.socket' ],
 
       // matches '/v2/x/y/z.json', '/v22.73/stuff.json'
