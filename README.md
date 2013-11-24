@@ -1,4 +1,4 @@
-# hyperproxy [![Build Status](https://secure.travis-ci.org/brianloveswords/hyperproxy.png?branch=master)](http://travis-ci.org/brianloveswords/hyperproxy)
+# hyperproxy v0.3.0 [![Build Status](https://secure.travis-ci.org/brianloveswords/hyperproxy.png?branch=master)](http://travis-ci.org/brianloveswords/hyperproxy)
 
 Reverse proxy with advanced routing capabilities
 
