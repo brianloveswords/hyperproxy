@@ -4,36 +4,29 @@ const testServer = require('./server')
 const testRequest = require('./request')
 const localSocket = require('./localsocket')
 
-
 test('proxy server: simple routing with ports', function (t) {
-
-  if (process.env.NODE_ENV == 'travis') {
-    console.log('skipping port test on travis')
-    return t.end()
-  }
-
   const proxySocket = localSocket('proxy-test.socket')
   const endpoint = testServer(':0')
 
   endpoint.on('listening', function () {
     const testPort = this.address().port
     const proxy = new Proxy({
-      servers: [['test.localhost', ':'+testPort]]
+      servers: [['localhost', ':'+testPort]]
     })
 
-    const gateway = proxy.createServer(function (req, res, next) {
+    const proxyServer = proxy.createServer(function (req, res, next) {
       req.headers['x-proxy'] = 'ti-83'
       return next()
     })
 
-    gateway.listen(localSocket('proxy-test.socket'))
-    gateway.unref()
+    proxyServer.listen(localSocket('proxy-test.socket'))
+    proxyServer.unref && proxyServer.unref()
 
     t.plan(1)
     testRequest({
       port: testPort,
       path: '/',
-      hostname: 'test.localhost',
+      hostname: 'localhost',
       method: 'GET',
     }, function (proxyRes) {
       console.dir(proxyRes)

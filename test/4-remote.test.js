@@ -17,11 +17,10 @@ test('proxy server: remote routing', function (t) {
     ]
   })
 
-  const gateway = proxy
+  const proxyServer = proxy
     .createServer()
     .listen(proxySocket)
-
-  gateway.unref()
+  proxyServer.unref && proxyServer.unref()
 
   testRequest({
     socketPath: proxySocket,

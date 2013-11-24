@@ -36,7 +36,7 @@ function makeServer(socketOrPort) {
     listeningPort = this.address().port
   })
 
-  server.unref()
+  server.unref && server.unref()
   server.socket = socketOrPort
   return server
 }

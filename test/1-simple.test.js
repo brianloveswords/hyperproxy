@@ -19,13 +19,13 @@ test('proxy server: simple routing', function (t) {
     ]
   })
 
-  const gateway = proxy.createServer(function (req, res, next) {
+  const proxyServer = proxy.createServer(function (req, res, next) {
     req.headers['x-proxy'] = 'ti-83'
     return next()
   })
 
-  gateway.listen(localSocket('proxy-test.socket'))
-  gateway.unref()
+  proxyServer.listen(localSocket('proxy-test.socket'))
+  proxyServer.unref && proxyServer.unref()
 
   const path = '/stuff?opt=yah'
 

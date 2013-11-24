@@ -9,8 +9,7 @@ test('no route match', function (t) {
   const server = new Proxy({ servers: [] })
     .createServer()
     .listen(proxySocket)
-
-  server.unref()
+  server.unref && server.unref()
 
   const opts = {
     socketPath: proxySocket,

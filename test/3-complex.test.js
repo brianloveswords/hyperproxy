@@ -25,11 +25,10 @@ test('proxy server: complex routing', function (t) {
 
   const proxy = new Proxy({ servers: serverDefs })
 
-  const gateway = proxy
+  const proxyServer = proxy
     .createServer()
     .listen(proxySocket)
-
-  gateway.unref()
+  proxyServer.unref && proxyServer.unref()
 
   t.plan(4)
   testRequest({
