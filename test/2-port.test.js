@@ -2,7 +2,7 @@ const Proxy = require('..')
 const test = require('tap').test
 const testServer = require('./server')
 const testRequest = require('./request')
-const localSocket = require('./localSocket')
+const localSocket = require('./localsocket')
 
 test('proxy server: simple routing with ports', function (t) {
   const proxySocket = localSocket('proxy-test.socket')

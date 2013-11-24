@@ -1,7 +1,7 @@
 const Proxy = require('..')
 const test = require('tap').test
 const testRequest = require('./request')
-const localSocket = require('./localSocket')
+const localSocket = require('./localsocket')
 const nock = require('nock')
 
 const example = nock('http://example.com')
