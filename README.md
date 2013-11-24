@@ -16,8 +16,11 @@ $ npm install hyperproxy
 ```js
 const Hyperproxy = require('hyperproxy')
 
-const proxy = new Hyperproxy([
-  servers: {
+const proxy = new Hyperproxy({
+  servers: [
+    // routes are tested in order, so exact matches should come first
+    // and less specific routes afterwards
+
     // exact matches, routes to local ports
     [ 'tau.example.org', ':1618' ],
     [ 'pi.example.org', ':3141'  ],
@@ -46,6 +49,8 @@ const proxy = new Hyperproxy([
       // matches '/v1/x/y/z.xml', '/vπ/stuff.xml'
       ['/api/*?.xml', '/tmp/xml-api.socket' ],
     ]],
+
+    // handle anything that falls through.
     [ '*', '/tmp/default.socket' ],
   ]
 })
