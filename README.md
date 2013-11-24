@@ -61,10 +61,17 @@ There are number of things that can go wrong when trying to proxy a request: it 
 When this happens, the default method of handling it will be to return a `HTTP 502: Bad Gateway` to the requesting client. However, if you attach an event handler to any one of the events below, the default behavior will be bypassed (though you will still be able to invoke it from the event handler).
 
 
-`proxyMiss`: When a route couldn't be found
-`missingSocketFile`: Couldn't find the socket file associated with the route
-`hostNotfound`: Couldn't find the host associated with the route
-`unknownError`: A catch-all for any other problems that occur when trying to attach an endpoint to a request.
+#### <code>proxyMiss</code>
+ A route couldn't be found
+
+#### <code>missingSocketFile</code>
+ Couldn't find the socket file associated with the route
+
+#### <code>hostNotfound</code>
+Couldn't find the host associated with the route
+
+#### <code>unknownError</code>
+Catch-all for any other problems that occur when trying to attach an endpoint to a request.
 
 All event handlers get four arguments: `(err, req, res, defaultHandler)`
 
