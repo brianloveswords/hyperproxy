@@ -1,5 +1,5 @@
 const fs = require('fs')
-const find = require('lodash.find')
+const find = require('./find')
 const http = require('http')
 const urlglob = require('urlglob')
 

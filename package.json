@@ -7,11 +7,10 @@
     "test": "test"
   },
   "dependencies": {
-    "lodash.find": "~2.3.0",
-    "nock": "~0.23.0",
     "urlglob": "~0.1.0"
   },
   "devDependencies": {
+    "nock": "~0.23.0",
     "tap": "~0.4.6",
     "concat-stream": "~1.2.0"
   },
