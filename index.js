@@ -51,7 +51,10 @@ Hyperproxy.prototype = {
           return proxyMiss(server, clientReq, clientRes)
 
         const proxyReq = http.request(requestOpts, handleResponse)
-        function handleResponse(proxyRes) {proxyRes.pipe(clientRes)}
+        function handleResponse(proxyRes) {
+          clientRes.statusCode = proxyRes.statusCode
+          proxyRes.pipe(clientRes)
+        }
 
         clientReq.pipe(proxyReq)
 
@@ -136,10 +139,11 @@ Hyperproxy.errorEvent = function (event, opts) {
   const handleBadGateway =
     Hyperproxy.badGateway.bind(Hyperproxy, opts)
 
+  server.emit('proxyError', opts.error)
+
   if (!server.listeners(event).length)
     return handleBadGateway()
 
-  server.emit('proxyError', opts.error)
   server.emit(event, opts.error, opts.req, opts.res, handleBadGateway)
 }
 
