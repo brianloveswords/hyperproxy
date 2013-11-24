@@ -4,12 +4,14 @@ const testServer = require('./server')
 const testRequest = require('./request')
 const localSocket = require('./localsocket')
 
-if (process.env.NODE_ENV == 'travis') {
-  console.log('skipping port test on travis')
-  process.exit(0)
-}
 
 test('proxy server: simple routing with ports', function (t) {
+
+  if (process.env.NODE_ENV == 'travis') {
+    console.log('skipping port test on travis')
+    return t.end()
+  }
+
   const proxySocket = localSocket('proxy-test.socket')
   const endpoint = testServer(':0')
 
