@@ -16,7 +16,7 @@ const Hyperproxy = require('hyperproxy')
 
 const proxy = new Hyperproxy([
   servers: {
-    // exact matches, routes to ports
+    // exact matches, routes to local ports
     [ 'tau.example.org', ':1618' ],
     [ 'pi.example.org', ':3141'  ],
     [ 'euler.example.org', ':2718' ],
