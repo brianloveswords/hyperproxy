@@ -47,7 +47,7 @@ const proxy = new Hyperproxy({
       ['/api/*.json', '/tmp/json-api.socket' ],
 
       // matches '/v1/x/y/z.xml', '/vπ/stuff.xml'
-      ['/api/*?.xml', '/tmp/xml-api.socket' ],
+      ['/api/*.xml', '/tmp/xml-api.socket' ],
     ]],
 
     // handle anything that falls through.
