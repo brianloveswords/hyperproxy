@@ -75,7 +75,7 @@ Catch-all for any other problems that occur when trying to attach an endpoint to
 
 All event handlers get four arguments: `(err, req, res, defaultHandler)`
 
-`handleError` is a reference to the default error handler. For example, if you wanted to log all unknown errors and passthrough to the default handler, you could do the following:
+`defaultHandler` is a reference to the default error handler. For example, if you wanted to log all unknown errors and passthrough to the default handler, you could do the following:
 
 ```js
 server.on('unknownError', function(err, req, res, defaultHandler){
