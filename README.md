@@ -2,6 +2,8 @@
 
 Reverse proxy with advanced routing capabilities
 
+Uses <code>[urlglob](urlglob)</code> for route matching
+
 ## Install
 
 ```bash
@@ -34,11 +36,15 @@ const proxy = new Hyperproxy([
     [ 'example.org', [
       // matches all sub paths, e.g. /static/a/b/
       ['/static/*', '/tmp/static.socket' ],
-      ['/js/*', '/tmp/javascript.socket' ],
-      // matches '/v2/x/y/z.json', `/v22.73/stuff.json'
+
+      // matches one level deep, e.g '/js/x.js', but not '/js/sub/x.js'
+      ['/js/*?', '/tmp/javascript.socket' ],
+
+      // matches '/v2/x/y/z.json', '/v22.73/stuff.json'
       ['/api/*.json', '/tmp/json-api.socket' ],
-      // matches '/v1/x/y/z.xml', `/vπ/stuff.xml'
-      ['/api/*.xml', '/tmp/xml-api.socket' ],
+
+      // matches '/v1/x/y/z.xml', '/vπ/stuff.xml'
+      ['/api/*?.xml', '/tmp/xml-api.socket' ],
     ]],
     [ '*', '/tmp/default.socket' ],
   ]
