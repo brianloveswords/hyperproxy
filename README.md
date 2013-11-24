@@ -2,7 +2,7 @@
 
 Reverse proxy with advanced routing capabilities
 
-Uses <code>[urlglob](urlglob)</code> for route matching
+Uses <code>[urlglob](/brianloveswords/urlglob)</code> for route matching
 
 ## Install
 
