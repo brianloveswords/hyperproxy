@@ -1,8 +1,8 @@
-# hyperproxy
+# hyperproxy [![Build Status](https://secure.travis-ci.org/brianloveswords/hyperproxy.png?branch=master)](http://travis-ci.org/brianloveswords/hyperproxy)
 
 Reverse proxy with advanced routing capabilities
 
-Uses <code>[urlglob](/brianloveswords/urlglob)</code> for route matching
+Uses <code>[urlglob](https://github.com/brianloveswords/urlglob)</code> for route matching
 
 ## Install
 
