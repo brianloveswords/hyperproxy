@@ -78,7 +78,7 @@ When this happens, the default method of handling it will be to return a `HTTP 5
 #### <code>missingSocketFile</code>
  Couldn't find the socket file associated with the route
 
-#### <code>hostNotfound</code>
+#### <code>hostNotFound</code>
 Couldn't find the host associated with the route
 
 #### <code>unknownError</code>
