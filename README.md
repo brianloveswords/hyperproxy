@@ -4,6 +4,8 @@ Reverse proxy with advanced routing capabilities
 
 Uses <code>[urlglob](https://github.com/brianloveswords/urlglob)</code> for route matching
 
+**NOTE** this is still pretty alpha. Use it on side projects, non-critical stuff and file bugs to help me track down issues.
+
 ## Install
 
 ```bash
