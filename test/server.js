@@ -18,7 +18,7 @@ function makeServer(socketOrPort, opts) {
     const method = req.method
 
     req.pipe(concat(function (data) {
-      res.writeHead(200, opts.headers)
+      res.writeHead(opts.statusCode || 200, opts.headers)
       res.write(JSON.stringify({
         requestHeaders: headers,
         socketPath: socketOrPort,

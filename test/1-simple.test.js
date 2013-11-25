@@ -10,6 +10,7 @@ test('proxy server: simple routing', function (t) {
   const proxySocket = localSocket('proxy-test.socket')
 
   const testServer1 = testServer(testSocket1, {
+    statusCode: '303',
     headers: { rad: 'totally' },
     body: "server1",
   })
@@ -35,13 +36,14 @@ test('proxy server: simple routing', function (t) {
 
   const path = '/stuff?opt=yah'
 
-  t.plan(11)
+  t.plan(12)
   testRequest({
     socketPath: proxySocket,
     path: path,
     hostname: 'test.localhost',
     method: 'GET',
-  }, function (proxyRes, requestHeaders, responseHeaders) {
+  }, function (proxyRes, requestHeaders, responseHeaders, statusCode) {
+    t.same(statusCode, '303', 'should get right status')
     t.same(responseHeaders['rad'], 'totally', 'correct header')
     t.same(requestHeaders['x-proxy'], 'ti-83', 'correct header')
     t.same(proxyRes.socketPath, testSocket1, 'correct socket')
