@@ -7,6 +7,9 @@ const urlglob = require('urlglob')
 module.exports = Hyperproxy
 
 function Hyperproxy(opts, callback) {
+  if (!(this instanceof Hyperproxy))
+    return new Hyperproxy(opts, callback)
+
   this.servers = opts.servers
   this.agent = opts.agent
     ? opts.agent
