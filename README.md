@@ -72,11 +72,19 @@ There are number of things that can go wrong when trying to proxy a request: it 
 
 When this happens, the default method of handling it will be to return a `HTTP 502: Bad Gateway` to the requesting client. However, if you attach an event handler to any one of the events below, the default behavior will be bypassed (though you will still be able to invoke it from the event handler).
 
+All event handlers **other than `proxyError`**  get four arguments: `(err, req, res, defaultHandler)`. `proxyError` only receives the error.
+
+`defaultHandler` is a reference to the default error handler. For example, if you wanted to log all unknown errors and passthrough to the default handler, you could do the following:
+
+
+#### <code>proxyError</code>
+Gets emitted on any error, in addition to the more specific events below. This can be useful for logging.
+
 #### <code>proxyMiss</code>
- A route couldn't be found
+A route couldn't be found
 
 #### <code>missingSocketFile</code>
- Couldn't find the socket file associated with the route
+Couldn't find the socket file associated with the route
 
 #### <code>hostNotFound</code>
 Couldn't find the host associated with the route
@@ -84,9 +92,6 @@ Couldn't find the host associated with the route
 #### <code>unknownError</code>
 Catch-all for any other problems that occur when trying to attach an endpoint to a request.
 
-All event handlers get four arguments: `(err, req, res, defaultHandler)`
-
-`defaultHandler` is a reference to the default error handler. For example, if you wanted to log all unknown errors and passthrough to the default handler, you could do the following:
 
 ```js
 server.on('unknownError', function(err, req, res, defaultHandler){
