@@ -1,3 +1,4 @@
+const pkg = require('./package')
 const fs = require('fs')
 const find = require('./find')
 const http = require('http')
@@ -14,6 +15,8 @@ function Hyperproxy(opts, callback) {
   if (callback)
     return this.createServer(callback)
 }
+
+Hyperproxy.VERSION = pkg.version
 
 Hyperproxy.prototype = {
   createServer: function createServer(callback) {
