@@ -106,7 +106,6 @@ Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
   if (!endpoint)
     return false
 
-  console.log('finishing request options')
   return Hyperproxy.finishRequestOpts(endpoint, {
     path: opts.path,
     headers: opts.headers,
