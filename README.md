@@ -4,8 +4,6 @@ Reverse proxy with advanced routing capabilities
 
 Uses <code>[urlglob](https://github.com/brianloveswords/urlglob)</code> for route matching
 
-**NOTE**: this is still pretty alpha. For example, port binding is broken right now – works in the tests, but I get EADDRNOTAVAIL when using it in real life! So feel free to play with it, but I wouldn't use it for anything critical.
-
 ## Install
 
 ```bash

@@ -106,12 +106,38 @@ Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
   if (!endpoint)
     return false
 
+  console.log('finishing request options')
   return Hyperproxy.finishRequestOpts(endpoint, {
     path: opts.path,
     headers: opts.headers,
     method: opts.method,
   })
 }
+
+Hyperproxy.finishRequestOpts =
+  function finishRequestOpts(endpoint, opts) {
+    if (Hyperproxy.isSocket(endpoint)) {
+      opts.socketPath = endpoint
+      return opts
+    }
+
+    if (Hyperproxy.isPort(endpoint)) {
+      opts.port = (''+endpoint).split(':')[1]
+      return opts
+    }
+
+    const parts = endpoint.split(':')
+    const hostname = parts[0]
+    const port = parts[1]
+
+    opts.headers.host = hostname
+    opts.hostname = hostname
+    opts.port = port
+
+    return opts
+  }
+
+
 
 Hyperproxy.errorHandler = function errorHandler(error) {
   return ((Hyperproxy.errorHandlers[error.code]  ||
@@ -150,28 +176,6 @@ Hyperproxy.errorEvent = function (event, opts) {
 Hyperproxy.connectionNoop =
   function connectionNoop(_, _, done) {
     return done()
-  }
-
-Hyperproxy.finishRequestOpts =
-  function finishRequestOpts(endpoint, opts) {
-    if (Hyperproxy.isSocket(endpoint)) {
-      opts.socketPath = endpoint
-      return opts
-    }
-
-    if (Hyperproxy.isPort(endpoint)) {
-      opts.port = endpoint
-      return opts
-    }
-
-    const parts = endpoint.split(':')
-    const hostname = parts[0]
-    const port = parts[1]
-
-    opts.headers.host = hostname
-    opts.hostname = hostname
-    opts.port = port
-    return opts
   }
 
 
