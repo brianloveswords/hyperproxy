@@ -22,7 +22,9 @@ module.exports = function (opts, callback) {
       if (opts.json === false)
         return callback(body)
       const response = JSON.parse(body.toString())
-      return callback(response)
+      const requestHeaders = response.requestHeaders
+      const responseHeaders = res.headers
+      return callback(response, requestHeaders, responseHeaders)
     }))
   })
   request.end(opts.data || Buffer(''))

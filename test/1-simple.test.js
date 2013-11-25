@@ -9,8 +9,14 @@ test('proxy server: simple routing', function (t) {
   const testSocket2 = localSocket('test2.socket')
   const proxySocket = localSocket('proxy-test.socket')
 
-  const testServer1 = testServer(testSocket1)
-  const testServer2 = testServer(testSocket2)
+  const testServer1 = testServer(testSocket1, {
+    headers: { rad: 'totally' },
+    body: "server1",
+  })
+  const testServer2 = testServer(testSocket2, {
+    headers: {'content-type': 'food/doritos' },
+    body: "server2",
+  })
 
   const proxy = new Proxy({
     servers: [
@@ -29,14 +35,15 @@ test('proxy server: simple routing', function (t) {
 
   const path = '/stuff?opt=yah'
 
-  t.plan(9)
+  t.plan(11)
   testRequest({
     socketPath: proxySocket,
     path: path,
     hostname: 'test.localhost',
     method: 'GET',
-  }, function (proxyRes) {
-    t.same(proxyRes.headers['x-proxy'], 'ti-83', 'correct header')
+  }, function (proxyRes, requestHeaders, responseHeaders) {
+    t.same(responseHeaders['rad'], 'totally', 'correct header')
+    t.same(requestHeaders['x-proxy'], 'ti-83', 'correct header')
     t.same(proxyRes.socketPath, testSocket1, 'correct socket')
     t.same(proxyRes.host, 'test.localhost', 'correct host')
     t.same(proxyRes.path, path, 'correct path')
@@ -49,9 +56,10 @@ test('proxy server: simple routing', function (t) {
     hostname: 'localhost.whatever.lol',
     method: 'POST',
     data: postData,
-  }, function (proxyRes) {
+  }, function (proxyRes, requestHeaders, responseHeaders) {
     t.same(proxyRes.data, postData.toString(), 'correct post data')
-    t.same(proxyRes.headers['x-proxy'], 'ti-83', 'correct header')
+    t.same(requestHeaders['x-proxy'], 'ti-83', 'correct header')
+    t.same(responseHeaders['content-type'], 'food/doritos', 'correct header')
     t.same(proxyRes.socketPath, testSocket2, 'correct socket')
     t.same(proxyRes.host, 'localhost.whatever.lol', 'correct host')
     t.same(proxyRes.path, path, 'correct path')

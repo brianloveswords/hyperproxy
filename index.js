@@ -52,7 +52,7 @@ Hyperproxy.prototype = {
 
         const proxyReq = http.request(requestOpts, handleResponse)
         function handleResponse(proxyRes) {
-          clientRes.statusCode = proxyRes.statusCode
+          clientRes.writeHead(clientRes.statusCode, proxyRes.headers)
           proxyRes.pipe(clientRes)
         }
 
