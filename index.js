@@ -22,6 +22,9 @@ function Hyperproxy(opts, callback) {
 Hyperproxy.VERSION = pkg.version
 
 Hyperproxy.prototype = {
+  changeUpstreams: function changeUpstream(servers) {
+    this.servers = servers
+  },
   createServer: function createServer(callback) {
     callback = callback || Hyperproxy.connectionNoop
     const server = http.createServer()
@@ -178,10 +181,9 @@ Hyperproxy.errorEvent = function (event, opts) {
   server.emit(event, opts.error, opts.req, opts.res, handleBadGateway)
 }
 
-Hyperproxy.connectionNoop =
-  function connectionNoop(_, _, done) {
-    return done()
-  }
+Hyperproxy.connectionNoop = function connectionNoop(_, _, done) {
+  return done()
+}
 
 
 Hyperproxy.isSocket = function isSocket(input) {
