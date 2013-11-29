@@ -4,7 +4,7 @@ Reverse proxy with advanced routing capabilities
 
 Uses <code>[urlglob](https://github.com/brianloveswords/urlglob)</code> for route matching
 
-**NOTE** this is still pretty alpha. Use it on side projects, non-critical stuff and file bugs to help me track down issues.
+**NOTE** this is still pretty alpha. Use it on side projects, non-critical stuff and file bugs to help me track down issues. For some battle-hardenred alternatives, check out nodejitsu's <code>[node-http-proxy](https://github.com/nodejitsu/node-http-proxy)</code> and dotCloud's <code>[hipache](https://github.com/dotcloud/hipache)</code>
 
 ## Install
 
