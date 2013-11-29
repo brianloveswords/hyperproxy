@@ -10,6 +10,7 @@
     "urlglob": "~0.1.0"
   },
   "devDependencies": {
+    "xtend": "~2.1.1",
     "nock": "~0.23.0",
     "tap": "~0.4.6",
     "concat-stream": "~1.2.0"

@@ -10,6 +10,7 @@ function Hyperproxy(opts, callback) {
   if (!(this instanceof Hyperproxy))
     return new Hyperproxy(opts, callback)
 
+  opts = Hyperproxy.normalizeOptions(opts)
   this.servers = opts.servers
   this.agent = opts.agent
     ? opts.agent
@@ -90,19 +91,29 @@ Hyperproxy.prototype = {
   },
 }
 
+Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
+  opts.servers = opts.servers.map(function (server) {
+    // array style: [pattern, endpoint]
+    if (Array.isArray(server))
+      return { pattern: server[0], endpoint: server[1] }
+    return server
+  })
+  return opts
+}
+
 Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
   const servers = opts.servers
   const path = opts.path
 
   const server = find(servers, function (server) {
-    const hostPattern = server[0]
+    const hostPattern = server.pattern
     return urlglob(hostPattern, opts.host)
   })
 
   if (!server)
     return false
 
-  var endpoint = server[1]
+  var endpoint = server.endpoint || server.upstream || server.routes
 
   if (Array.isArray(endpoint)) {
     const urlPatterns = endpoint
@@ -144,8 +155,6 @@ Hyperproxy.finishRequestOpts =
 
     return opts
   }
-
-
 
 Hyperproxy.errorHandler = function errorHandler(error) {
   return ((Hyperproxy.errorHandlers[error.code]  ||

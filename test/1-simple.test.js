@@ -57,9 +57,9 @@ test('proxy server: simple routing', function (t) {
     path: path,
     hostname: 'localhost.whatever.lol',
     method: 'POST',
-    data: postData,
+    postData: postData,
   }, function (proxyRes, requestHeaders, responseHeaders) {
-    t.same(proxyRes.data, postData.toString(), 'correct post data')
+    t.same(proxyRes.postData, postData.toString(), 'correct post data')
     t.same(requestHeaders['x-proxy'], 'ti-83', 'correct header')
     t.same(responseHeaders['content-type'], 'food/doritos', 'correct header')
     t.same(proxyRes.socketPath, testSocket2, 'correct socket')

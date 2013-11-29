@@ -26,7 +26,8 @@ function makeServer(socketOrPort, opts) {
         host: host,
         path: path,
         method: method,
-        data: data.toString(),
+        body: opts.body,
+        postData: data.toString(),
       }, null, '  '))
 
       res.end()

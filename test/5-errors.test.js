@@ -2,7 +2,6 @@ const Proxy = require('..')
 const test = require('tap').test
 const testRequest = require('./request')
 const localSocket = require('./localsocket')
-const net = require('net')
 
 test('no route match', function (t) {
   const proxySocket = localSocket('proxy-test.socket')
@@ -101,5 +100,4 @@ test('missing remote host', function (t) {
       t.end()
     })
   })
-
 })

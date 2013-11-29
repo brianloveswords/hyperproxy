@@ -27,6 +27,6 @@ module.exports = function (opts, callback) {
       return callback(response, requestHeaders, responseHeaders, res.statusCode)
     }))
   })
-  request.end(opts.data || Buffer(''))
+  request.end(opts.postData || Buffer(''))
   return request
 }
