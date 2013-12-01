@@ -161,11 +161,8 @@ Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
         return route
       })
     }
-
     return server
   })
-  console.dir(opts)
-
   return opts
 }
 
