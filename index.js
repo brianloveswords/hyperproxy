@@ -1,5 +1,6 @@
 const pkg = require('./package')
 const fs = require('fs')
+const path = require('path')
 const find = require('./find')
 const http = require('http')
 const https = require('https')
@@ -46,6 +47,7 @@ Hyperproxy.prototype = {
     const secureServer = https.createServer({
       key: this.https.key,
       cert: this.https.cert,
+      pfx: this.https.pfx,
       SNICallback: function (servername) {
         const server = find(servers, function (server) {
           const hostPattern = server.pattern
@@ -136,11 +138,24 @@ Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
       return { pattern: server[0], endpoint: server[1] }
 
     if (server.https)
-      opts.https = server.https
+      opts.https = server.https = fixHttpsOptions(server.https)
 
     return server
   })
   return opts
+}
+
+function readFile(file) {
+  return fs.readFileSync(path.resolve(file))
+}
+function fixHttpsOptions(https) {
+  if (https.key && !Buffer.isBuffer(https.key))
+    https.key = readFile(https.key)
+  if (https.cert && !Buffer.isBuffer(https.cert))
+    https.cert = readFile(https.cert)
+  if (https.pfx && !Buffer.isBuffer(https.pfx))
+    https.pfx = readFile(https.pfx)
+  return https
 }
 
 Hyperproxy.createRequestOpts = function createRequestOpts(opts) {

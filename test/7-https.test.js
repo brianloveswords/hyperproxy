@@ -1,3 +1,4 @@
+const path = require('path')
 const Proxy = require('..')
 const test = require('tap').test
 const https = require('https')
@@ -15,7 +16,10 @@ test('ssl testing', function (t) {
     }, {
       pattern: 'localhost',
       endpoint: servers.tubular.start(),
-      https: servers.tubular.tlsOptions(),
+      https: {
+        key: path.join(__dirname, 'cert', 'ia.key'),
+        cert: path.join(__dirname, 'cert', 'tubular.localhost.crt'),
+      }
     }]
   })
 
