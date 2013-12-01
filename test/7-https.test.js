@@ -7,16 +7,20 @@ const localSocket = require('./localsocket')
 test('ssl testing', function (t) {
   const proxySocket = localSocket('proxy-test.socket')
   const proxy = new Proxy({
-    ssl: 'true',
     servers: [{
       pattern: 'localhost',
-      endpoint: servers.gnarly.start(),
-    }, {
-      pattern: 'sub.localhost',
       routes: [
-        ['/tubular', servers.tubular.start()],
         ['/way-cool', servers.wayCool.start()],
+        ['/mondo', servers.mondo.start()],
       ]
+    }, {
+      pattern: 'gnarly.localhost',
+      endpoint: servers.gnarly.start(),
+      https: servers.gnarly.tlsOptions(),
+    }, {
+      pattern: 'tubular.localhost',
+      endpoint: servers.tubular.start(),
+      https: servers.tubular.tlsOptions(),
     }]
   })
 
@@ -26,19 +30,25 @@ test('ssl testing', function (t) {
 
   t.plan(2)
 
+  proxyServer.on('certificate', function () {
+
+  })
+
   testRequest({
+    https: true,
     method: 'GET',
     socketPath: proxySocket,
-    hostname: 'localhost',
+    hostname: 'gnarly.localhost',
     path: '/',
   }, function (proxyRes, requestHeaders, responseHeaders, statusCode) {
     t.same(responseHeaders['x-server-name'], servers.gnarly.name)
   })
 
   testRequest({
+    https: true,
     method: 'GET',
     socketPath: proxySocket,
-    hostname: 'sub.localhost',
+    hostname: 'tubular.localhost',
     path: '/tubular',
   }, function (proxyRes, requestHeaders, responseHeaders, statusCode) {
     t.same(responseHeaders['x-server-name'], servers.tubular.name)
