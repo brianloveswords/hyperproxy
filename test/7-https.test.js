@@ -9,17 +9,11 @@ const xtend = require('xtend')
 test('ssl testing', function (t) {
   const proxy = new Proxy({
     servers: [{
-      pattern: 'localhost',
-      routes: [
-        ['/way-cool', servers.wayCool.start()],
-        ['/mondo', servers.mondo.start()],
-      ]
-    }, {
-      pattern: 'gnarly.localhost',
+      pattern: '127.0.0.1',
       endpoint: servers.gnarly.start(),
       https: servers.gnarly.tlsOptions(),
     }, {
-      pattern: 'tubular.localhost',
+      pattern: 'localhost',
       endpoint: servers.tubular.start(),
       https: servers.tubular.tlsOptions(),
     }]
@@ -53,13 +47,13 @@ test('ssl testing', function (t) {
       path: '/',
     }
     testRequest(xtend(opts, {
-      hostname: 'gnarly.localhost'
+      hostname: '127.0.0.1'
     }), function (proxyRes, requestHeaders, responseHeaders, statusCode) {
       t.same(responseHeaders['x-server-name'], servers.gnarly.name)
     })
 
     testRequest(xtend(opts, {
-      hostname: 'tubular.localhost'
+      hostname: 'localhost'
     }), function (proxyRes, requestHeaders, responseHeaders, statusCode) {
       t.same(responseHeaders['x-server-name'], servers.tubular.name)
     })
