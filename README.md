@@ -36,7 +36,8 @@ const proxy = new Hyperproxy({
     },
 
     // `secureOnly` will force a 301 redirect to the HTTPS server when
-    // the HTTP server is hit.
+    // the HTTP server is hit. You should also consider adding a
+    // `Strict-Transport-Security` header.
     { pattern: 'euler.example.org',
       endpoint: ':2718',
       secureOnly: true,
