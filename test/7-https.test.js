@@ -46,7 +46,6 @@ test('ssl testing', function (t) {
 
   proxyServer.on('listening', function () {
     const port = this.address().port
-
     const opts = {
       https: true,
       port: port,
@@ -64,7 +63,5 @@ test('ssl testing', function (t) {
     }), function (proxyRes, requestHeaders, responseHeaders, statusCode) {
       t.same(responseHeaders['x-server-name'], servers.tubular.name)
     })
-
   })
-
 })
