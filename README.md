@@ -4,9 +4,9 @@ Reverse proxy with advanced routing capabilities
 
 Uses <code>[urlglob](https://github.com/brianloveswords/urlglob)</code> for route matching
 
-**NOTE** this is still pretty alpha. Use it on personal servers, side projects and other non-critical applications. Please file bugs to help me track down issues!
+**NOTE** This project is still early days. Use it on personal servers, side projects and other applications that aren't super critical. Please file bugs to help me track down issues!
 
- For some battle-hardenred alternatives, check out nodejitsu's <code>[node-http-proxy](https://github.com/nodejitsu/node-http-proxy)</code> and dotCloud's <code>[hipache](https://github.com/dotcloud/hipache)</code>
+For some battle-hardened alternatives, check out nodejitsu's <code>[node-http-proxy](https://github.com/nodejitsu/node-http-proxy)</code> and dotCloud's <code>[hipache](https://github.com/dotcloud/hipache)</code>
 
 ## Install
 
@@ -26,9 +26,24 @@ const proxy = new Hyperproxy({
     // and less specific routes afterwards
 
     // exact matches, routes to local ports
-    [ 'tau.example.org', ':1618' ],
     [ 'pi.example.org', ':3141'  ],
-    [ 'euler.example.org', ':2718' ],
+
+    // HTTPS servers require a more explicit definition
+    { pattern: 'tau.example.org',
+      endpoint: ':1618',
+      https: {
+        key: fs.readFileSync('/path/to/tau-key.pem'),
+        cert: fs.readFileSync('/path/to/tau-cert.pem'),
+      }
+    },
+
+    { pattern: 'euler.example.org',
+      endpoint: ':2718',
+      https: {
+        key: fs.readFileSync('/path/to/euler-key.pem'),
+        cert: fs.readFileSync('/path/to/euler-cert.pem'),
+      }
+    },
 
     // route to an external domain
     [ 'google.example.org', 'google:80' ],
@@ -53,10 +68,22 @@ const proxy = new Hyperproxy({
 
       // matches '/v1/x/y/z.xml', '/vπ/stuff.xml'
       ['/api/*.xml', '/tmp/xml-api.socket' ],
+
+      // handle anything that falls through.
+      [ '*', '/tmp/default.socket' ],
     ]],
 
-    // handle anything that falls through.
-    [ '*', '/tmp/default.socket' ],
+    // this is exactly the same as above, only it uses the explicit
+    // style of configuration instead of the implicit style.
+    { pattern: 'example.org',
+      routes: [
+        { pattern: '/static/*', endpoint: '/tmp/static.socket' },
+        { pattern: '/js/*?', endpoint: '/tmp/javascript.socket' },
+        { pattern: '/api/*.json', endpoint: '/tmp/json-api.socket' },
+        { pattern: '/api/*.xml', endpoint: '/tmp/xml-api.socket' },
+        { pattern '*', endpoint: '/tmp/default.socket' },
+      ]
+    },
   ]
 })
 
@@ -68,7 +95,18 @@ const server = proxy
     res.headers['x-proxy'] = 'hyperproxy'
     proxyRoute() // continue to proxy routing
   }).listen(80)
+
+
+// `createServer` only makes the HTTP server, if you want to also
+// make the HTTPS server, you have to call `createSecureServer`.
+const secureServer = proxy
+  .createSecureServer()
+  .listen(443)
 ```
+### A Note About HTTPS
+
+Hyperproxy uses [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) to choose different certificates based on hostname. Note that while SNI has wide support at this point, [not all platforms support it](https://en.wikipedia.org/wiki/Server_Name_Indication#No_support), notably Windows XP. Microsoft is [ending support for Windows XP 2014-04-08](http://windows.microsoft.com/en-us/windows/end-support-help), so it is expected that the userbase with SNI capability will grow as the last holdouts on XP upgrade their systems.
+
 
 ### Error Handling
 
@@ -109,7 +147,7 @@ server.on('unknownError', function(err, req, res, defaultHandler){
 ## Current Limitations
 These may be implemented as plugins later on.
 
-* `http` only, no support for `https` or `ws`.
+* `HTTP` and `HTTPS` only, no websocket support yet.
 * No load balancing, caching or any "advanced" features.
 
 ## License
