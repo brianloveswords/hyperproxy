@@ -44,12 +44,21 @@ Hyperproxy.prototype = {
     if (!this.https)
       throw new Error('At least one endpoint must have https options to create a secure server')
 
+    const context = {}
     const secureServer = https.createServer({
       key: this.https.key,
       cert: this.https.cert,
       pfx: this.https.pfx,
       SNICallback: function (servername) {
-        const server = find(servers, function (server) {
+        const cachedContext = context[servername]
+        if (cachedContext)
+          return cachedContext
+
+        const secureServers = servers.filter(function (server) {
+          return server.https
+        })
+
+        const server = find(secureServers, function (server) {
           const hostPattern = server.pattern
           return urlglob(hostPattern, servername)
         })
@@ -61,6 +70,7 @@ Hyperproxy.prototype = {
           crypto.createCredentials(server.https).context
 
         secureServer.emit('certificateNegotiation', servername, server)
+        context[servername] = secureContext
         return secureContext
       }
     })
@@ -135,13 +145,27 @@ Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
   opts.servers = opts.servers.map(function (server) {
     // array style: [pattern, endpoint]
     if (Array.isArray(server))
-      return { pattern: server[0], endpoint: server[1] }
+      server = { pattern: server[0], endpoint: server[1] }
 
     if (server.https)
       opts.https = server.https = fixHttpsOptions(server.https)
 
+    var routes = server.endpoint || server.upstream || server.routes
+
+    if (Array.isArray(routes)) {
+      delete server.endpoint
+      delete server.upstream
+      server.routes = routes.map(function (route) {
+        if (Array.isArray(route))
+          return { pattern: route[0], endpoint: route[1] }
+        return route
+      })
+    }
+
     return server
   })
+  console.dir(opts)
+
   return opts
 }
 
@@ -173,11 +197,12 @@ Hyperproxy.createRequestOpts = function createRequestOpts(opts) {
   var endpoint = server.endpoint || server.upstream || server.routes
 
   if (Array.isArray(endpoint)) {
-    const urlPatterns = endpoint
-    endpoint = find(urlPatterns, function (urlPairs) {
-      const urlPattern = urlPairs[0]
-      return urlglob(urlPattern, path)
-    })[1]
+    const routes = endpoint
+    const found = find(routes, function (route) {
+      return urlglob(route.pattern, path)
+    })
+    if (found)
+      endpoint = found.endpoint
   }
 
   if (!endpoint)

@@ -19,7 +19,7 @@ test('proxy server: complex routing', function (t) {
       ['/api/*.json', servers.json.socket],
       ['/api/*.xml', servers.xml.socket],
       ['/.*', servers.dot.socket],
-      ['*', servers.default.socket],
+      {pattern: '*', endpoint: servers.default.socket},
     ]],
   ]
 
