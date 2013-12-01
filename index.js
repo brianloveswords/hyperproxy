@@ -35,7 +35,12 @@ Hyperproxy.prototype = {
   createServer: function createServer(callback) {
     callback = callback || Hyperproxy.connectionNoop
     const server = http.createServer()
-    const requestHandler = makeRequestHandler(server, callback, this)
+    const requestHandler = makeRequestHandler({
+      secure: false,
+      server: server,
+      callback: callback,
+      context: this
+    })
     server.on('request', requestHandler)
 
     return server
@@ -78,14 +83,29 @@ Hyperproxy.prototype = {
     })
 
     const secureRequestHandler =
-      makeRequestHandler(secureServer, callback, this)
+      makeRequestHandler({
+        secure: true,
+        server: secureServer,
+        callback: callback,
+        context: this
+      })
 
     secureServer.on('request', secureRequestHandler)
     return secureServer
-  }
+  },
+  pickServer: function (host) {
+    return find(this.servers, function (server) {
+      const hostPattern = server.pattern
+      return urlglob(hostPattern, host)
+    })
+  },
 }
 
-function makeRequestHandler(server, callback, ctx) {
+function makeRequestHandler(opts) {
+  const server = opts.server
+  const callback = opts.callback
+  const secureRequest = opts.secure
+  const ctx = opts.context || opts.ctx
   return function(clientReq, clientRes) {
     function proxyMiss(server, req, res) {
       const handler = Hyperproxy.errorHandler({
@@ -104,7 +124,7 @@ function makeRequestHandler(server, callback, ctx) {
         return proxyMiss(server, clientReq, clientRes)
 
       const host = clientReq.headers.host.split(':')[0]
-
+      const serverConfig = ctx.pickServer(host)
       const requestOpts = Hyperproxy.createRequestOpts({
         servers: ctx.servers,
         headers: clientReq.headers,
@@ -116,13 +136,14 @@ function makeRequestHandler(server, callback, ctx) {
       if (!requestOpts)
         return proxyMiss(server, clientReq, clientRes)
 
+      if (serverConfig.secureOnly && !secureRequest)
+        return httpsRedirect(clientReq, clientRes)
+
       const proxyReq = http.request(requestOpts, endpointResponse)
       function endpointResponse(proxyRes) {
         clientRes.writeHead(proxyRes.statusCode, proxyRes.headers)
         proxyRes.pipe(clientRes)
-      }
-
-      clientReq.pipe(proxyReq)
+      }; clientReq.pipe(proxyReq)
 
       proxyReq.on('error', function (err) {
         const handler = Hyperproxy.errorHandler(err)
@@ -142,6 +163,11 @@ function makeRequestHandler(server, callback, ctx) {
   }
 }
 
+function httpsRedirect(req, res) {
+  const url = 'https://' + req.headers.host +  req.url
+  res.writeHead(301, {Location: url})
+  res.end()
+}
 
 Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
   opts.servers = opts.servers.map(function (server) {
@@ -159,7 +185,11 @@ Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
       delete server.upstream
       server.routes = routes.map(function (route) {
         if (Array.isArray(route))
-          return { pattern: route[0], endpoint: route[1] }
+          return {
+            pattern: route[0],
+            endpoint: route[1],
+            secureOnly: server.secureOnly,
+          }
         return route
       })
     }

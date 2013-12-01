@@ -35,8 +35,11 @@ const proxy = new Hyperproxy({
       }
     },
 
+    // `secureOnly` will force a 301 redirect to the HTTPS server when
+    // the HTTP server is hit.
     { pattern: 'euler.example.org',
       endpoint: ':2718',
+      secureOnly: true,
       https: {
         key: fs.readFileSync('/path/to/euler-key.pem'),
         cert: fs.readFileSync('/path/to/euler-cert.pem'),
