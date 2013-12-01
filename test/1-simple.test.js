@@ -31,7 +31,7 @@ test('proxy server: simple routing', function (t) {
     return next()
   })
 
-  proxyServer.listen(localSocket('proxy-test.socket'))
+  proxyServer.listen(proxySocket)
   proxyServer.unref && proxyServer.unref()
 
   const path = '/stuff?opt=yah'

@@ -22,10 +22,12 @@ function Server(name) {
 
 Server.prototype.tlsOptions = function () {
   const cert = this.name + '.localhost.crt'
-  return {
+  const opts =  {
     key: fs.readFileSync(path.join(__dirname, 'cert', 'ia.key')),
     cert: fs.readFileSync(path.join(__dirname, 'cert', cert)),
   }
+  console.dir(opts)
+  return opts
 }
 
 Server.prototype.start = function (opts) {

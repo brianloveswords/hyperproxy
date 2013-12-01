@@ -1,6 +1,6 @@
 const path = require('path')
 const http = require('http')
-const https = require('http')
+const https = require('https')
 const concat = require('concat-stream')
 
 module.exports = function (opts, callback) {
@@ -10,6 +10,7 @@ module.exports = function (opts, callback) {
     : http.request.bind(http)
 
   const request = requestMethod({
+    rejectUnauthorized: false,
     socketPath: opts.socketPath,
     port: opts.port,
     path: opts.path,
@@ -18,9 +19,6 @@ module.exports = function (opts, callback) {
     headers: {
       "host": opts.hostname,
       "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:28.0) Gecko/20100101 Firefox/28.0",
-      "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      "accept-language": "en-US,en;q=0.5",
-      "accept-encoding": "gzip, deflate",
     },
   }, function (res) {
     res.pipe(concat(function (body) {

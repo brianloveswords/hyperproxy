@@ -3,6 +3,7 @@ const fs = require('fs')
 const find = require('./find')
 const http = require('http')
 const https = require('https')
+const crypto = require('crypto')
 const urlglob = require('urlglob')
 
 module.exports = Hyperproxy
@@ -34,22 +35,40 @@ Hyperproxy.prototype = {
     const requestHandler = makeRequestHandler(server, callback, this)
     server.on('request', requestHandler)
 
-    if (this.https) {
-      const secureServer = https.createServer({
-        key: this.https.key,
-        cert: this.https.cert,
-        pfx: this.https.pfx,
-        SNICallback: function (servername) {
-          console.log('server name', servername)
-        }
-      })
-      const secureRequestHandler =
-        makeRequestHandler(secureServer, callback, this)
-      secureServer.on('request', secureRequestHandler)
-    }
-
     return server
   },
+  createSecureServer: function createSecureServer(callback) {
+    callback = callback || Hyperproxy.connectionNoop
+    const servers = this.servers
+    if (!this.https)
+      throw new Error('At least one endpoint must have https options to create a secure server')
+
+    const secureServer = https.createServer({
+      key: this.https.key,
+      cert: this.https.cert,
+      SNICallback: function (servername) {
+        const server = find(servers, function (server) {
+          const hostPattern = server.pattern
+          return urlglob(hostPattern, servername)
+        })
+
+        if (!server)
+          return false
+
+        const secureContext =
+          crypto.createCredentials(server.https).context
+
+        secureServer.emit('certificateNegotiation', servername, server)
+        return secureContext
+      }
+    })
+
+    const secureRequestHandler =
+      makeRequestHandler(secureServer, callback, this)
+
+    secureServer.on('request', secureRequestHandler)
+    return secureServer
+  }
 }
 
 function makeRequestHandler(server, callback, ctx) {
