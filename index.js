@@ -27,8 +27,10 @@ function Hyperproxy(opts, callback) {
 Hyperproxy.VERSION = pkg.version
 
 Hyperproxy.prototype = {
-  changeUpstreams: function changeUpstream(servers) {
-    this.servers = servers
+  changeConfig: function changeConfig(opts) {
+    opts = Hyperproxy.normalizeOptions(opts)
+    this.https = opts.https
+    this.servers = opts.servers
   },
   createServer: function createServer(callback) {
     callback = callback || Hyperproxy.connectionNoop
