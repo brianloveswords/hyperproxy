@@ -103,7 +103,7 @@ const secureServer = proxy
 ```
 ### A Note About HTTPS
 
-Hyperproxy uses [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) to choose different certificates based on hostname. Note that while SNI has wide support at this point, [not all platforms support it](https://en.wikipedia.org/wiki/Server_Name_Indication#No_support), notably Windows XP. Microsoft is [ending support for Windows XP](http://windows.microsoft.com/en-us/windows/end-support-help), on 2014-04-08 so it is expected that the userbase with SNI capability will grow as the last holdouts on XP upgrade their systems.
+Hyperproxy uses [Server Name Indication](https://en.wikipedia.org/wiki/Server_Name_Indication) to choose different certificates based on hostname. While SNI has wide support at this point, [not all platforms support it](https://en.wikipedia.org/wiki/Server_Name_Indication#No_support), notably Windows XP. Microsoft is [ending support for Windows XP](http://windows.microsoft.com/en-us/windows/end-support-help), on 2014-04-08 so it is expected that the userbase with SNI capability will grow as the last holdouts on XP upgrade their systems.
 
 
 ### Error Handling
