@@ -7,7 +7,8 @@
     "test": "test"
   },
   "dependencies": {
-    "urlglob": "~0.1.0"
+    "urlglob": "~0.1.0",
+    "xtend": "~2.1.1"
   },
   "devDependencies": {
     "xtend": "~2.1.1",
