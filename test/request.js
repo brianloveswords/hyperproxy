@@ -1,10 +1,15 @@
 const path = require('path')
 const http = require('http')
+const https = require('http')
 const concat = require('concat-stream')
 
 module.exports = function (opts, callback) {
   opts = opts || {}
-  const request = http.request({
+  const requestMethod = (opts.https == true)
+    ? https.request.bind(https)
+    : http.request.bind(http)
+
+  const request = requestMethod({
     socketPath: opts.socketPath,
     port: opts.port,
     path: opts.path,

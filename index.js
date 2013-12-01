@@ -2,6 +2,7 @@ const pkg = require('./package')
 const fs = require('fs')
 const find = require('./find')
 const http = require('http')
+const https = require('https')
 const urlglob = require('urlglob')
 
 module.exports = Hyperproxy
@@ -11,6 +12,7 @@ function Hyperproxy(opts, callback) {
     return new Hyperproxy(opts, callback)
 
   opts = Hyperproxy.normalizeOptions(opts)
+  this.https = opts.https
   this.servers = opts.servers
   this.agent = opts.agent
     ? opts.agent
@@ -30,7 +32,7 @@ Hyperproxy.prototype = {
     callback = callback || Hyperproxy.connectionNoop
     const server = http.createServer()
 
-    server.on('request', function (clientReq, clientRes) {
+    function incomingRequest(clientReq, clientRes) {
       function proxyMiss(server, req, res) {
         const handler = Hyperproxy.errorHandler({
           code: 'proxyMiss'
@@ -60,8 +62,8 @@ Hyperproxy.prototype = {
         if (!requestOpts)
           return proxyMiss(server, clientReq, clientRes)
 
-        const proxyReq = http.request(requestOpts, handleResponse)
-        function handleResponse(proxyRes) {
+        const proxyReq = http.request(requestOpts, endpointResponse)
+        function endpointResponse(proxyRes) {
           clientRes.writeHead(proxyRes.statusCode, proxyRes.headers)
           proxyRes.pipe(clientRes)
         }
@@ -84,9 +86,9 @@ Hyperproxy.prototype = {
         clientRes,
         makeProxyRequest.bind(this)
       ])
+    }
 
-    }.bind(this))
-
+    server.on('request', incomingRequest.bind(this))
     return server
   },
 }
@@ -96,6 +98,10 @@ Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
     // array style: [pattern, endpoint]
     if (Array.isArray(server))
       return { pattern: server[0], endpoint: server[1] }
+
+    if (server.https)
+      opts.https = true
+
     return server
   })
   return opts

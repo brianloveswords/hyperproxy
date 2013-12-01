@@ -1,3 +1,5 @@
+const fs = require('fs')
+const path = require('path')
 const testServer = require('./server')
 const localSocket = require('./localsocket')
 const xtend = require('xtend')
@@ -16,6 +18,14 @@ module.exports = {
 function Server(name) {
   this.name = name
   this.socket = localSocket(name + '.sock')
+}
+
+Server.prototype.tlsOptions = function () {
+  const cert = this.name + '.localhost.crt'
+  return {
+    key: fs.readFileSync(path.join(__dirname, 'cert', 'ia.key')),
+    cert: fs.readFileSync(path.join(__dirname, 'cert', cert)),
+  }
 }
 
 Server.prototype.start = function (opts) {
