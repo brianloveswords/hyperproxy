@@ -14,6 +14,10 @@ For some battle-hardened alternatives, check out nodejitsu's <code>[node-http-pr
 $ npm install hyperproxy
 ```
 
+## CLI
+
+Checkout <a href="//github.com/brianloveswords/hyperproxy-cli"><code>hyperproxy-cli</code></a>
+
 ## Example
 ```js
 const Hyperproxy = require('hyperproxy')
