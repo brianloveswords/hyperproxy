@@ -14,9 +14,7 @@ For some battle-hardened alternatives, check out nodejitsu's <code>[node-http-pr
 $ npm install hyperproxy
 ```
 
-## Library Usage
-
-### Egregious example
+## Example
 ```js
 const Hyperproxy = require('hyperproxy')
 
