@@ -39,12 +39,12 @@ const proxy = new Hyperproxy({
       }
     },
 
-    // `secureOnly` will force a 301 redirect to the HTTPS server when
+    // `forceSecure` will force a 301 redirect to the HTTPS server when
     // the HTTP server is hit. You should also consider adding a
     // `Strict-Transport-Security` header.
     { pattern: 'euler.example.org',
       endpoint: ':2718',
-      secureOnly: true,
+      forceSecure: true,
       https: {
         key: fs.readFileSync('/path/to/euler-key.pem'),
         cert: fs.readFileSync('/path/to/euler-cert.pem'),

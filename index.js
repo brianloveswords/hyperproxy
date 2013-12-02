@@ -136,7 +136,7 @@ function makeRequestHandler(opts) {
       if (!requestOpts)
         return proxyMiss(server, clientReq, clientRes)
 
-      if (serverConfig.secureOnly && !secureRequest)
+      if (serverConfig.forceSecure && !secureRequest)
         return httpsRedirect(clientReq, clientRes)
 
       const proxyReq = http.request(requestOpts, endpointResponse)
@@ -188,7 +188,7 @@ Hyperproxy.normalizeOptions = function normalizeOptions(opts) {
           return {
             pattern: route[0],
             endpoint: route[1],
-            secureOnly: server.secureOnly,
+            forceSecure: server.forceSecure,
           }
         return route
       })
