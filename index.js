@@ -108,11 +108,12 @@ function makeRequestHandler(opts) {
   const ctx = opts.context || opts.ctx
   return function(clientReq, clientRes) {
     function proxyMiss(server, req, res) {
-      const handler = Hyperproxy.errorHandler({
-        code: 'proxyMiss'
-      })
-
+      const fullUrl = req.headers.host + req.url
+      const error = new Error('Could not find endpoint for "' + fullUrl + '"')
+      error.code = 'proxyMiss'
+      const handler = Hyperproxy.errorHandler(error)
       return handler({
+        error: error,
         server: server,
         req: clientReq,
         res: clientRes
@@ -292,9 +293,7 @@ Hyperproxy.errorEvent = function (event, opts) {
   const server = opts.server
   const handleBadGateway =
     Hyperproxy.badGateway.bind(Hyperproxy, opts)
-
   server.emit('proxyError', opts.error)
-
   if (!server.listeners(event).length)
     return handleBadGateway()
 

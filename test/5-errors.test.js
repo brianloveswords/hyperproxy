@@ -23,17 +23,23 @@ test('no route match', function (t) {
     defaultHandler()
   });
 
+  t.plan(3)
   testRequest(opts, function (proxyRes) {
     t.same(proxyRes.toString(), 'Bad Gateway')
 
     const msg = 'proxy miss'
+    server.on('proxyError', function (error) {
+      console.dir(error)
+      t.ok(error, 'should have an error')
+    })
+
     server.on('proxyMiss', function (_, req, res) {
       res.writeHead(502)
       res.end(msg)
     })
+
     testRequest(opts, function (proxyRes) {
       t.same(proxyRes.toString(), msg)
-      t.end()
     })
   })
 
